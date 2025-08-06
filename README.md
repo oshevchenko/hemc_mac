@@ -55,8 +55,6 @@ Total   Serial  MAC               DateTime
 1       0001    60:36:96:08:00:01 2025-08-05 16:25:54
 ```
 
-
-
 ## Configure SFTP server
 
 Create a dedicated group for SFTP users:

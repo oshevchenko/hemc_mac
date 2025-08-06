@@ -40,7 +40,7 @@ class LocalFileProcess:
         return total_number, serial_number, mac
 
 
-    def update(self, total_number, serial_number, mac, header=None):
+    def update(self, total_number, serial_number, mac):
         """
         Save the total number, serial number, and MAC address to the local file.
         """
@@ -48,8 +48,6 @@ class LocalFileProcess:
         with open(self._local_file_path, 'a') as file:
             # Append the new total number, serial number and current time/date to the file
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            if header:
-                file.write(f"{header}\n")
             # extent total number to 7 symbols with trailing spaces
             total_number = str(total_number).ljust(7)
             serial_number = f"{serial_number:04x}"
@@ -73,7 +71,9 @@ class LocalFileProcess:
         self.delete()  # Ensure the file is clean before creating
         if header is None:
             header="Total   Serial  MAC               DateTime"
-        self.update(total_number, serial_number, mac, header=header)
+        with open(self._local_file_path, 'w') as file:
+            file.write(f"{header}\n")
+        self.update(total_number, serial_number, mac)
 
 
 class SftpFileProcess():
@@ -195,7 +195,7 @@ class SftpFileProcess():
         sftp = self.connect()
         sftp.put(self._path_local_mutex_unlocked, self._path_sftp_mutex_unlocked)
         mac = self._mac_process.serial_to_mac(0)
-        self._local_storage.create(total_number=0, serial_number=0, mac=mac)  # Create the initial MAC list file on local storage
+        self._local_storage.create(mac=mac)  # Create the initial MAC list file on local storage
         sftp.put(self._local_file_path, self._sftp_file_path)
         sftp.close()
         self.disconnect()
