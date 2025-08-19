@@ -19,19 +19,25 @@ VENV_BIN_PATH = $(VENV_PATH)/bin
 $(VENV_BIN_PATH)/python3:
 	python3 -m venv $(VENV_PATH)
 
-requirements.txt:
-	@echo "Generating requirements.txt"
-	@echo "Please ensure you have a valid requirements.txt file before running this Makefile."
-	@echo "You can create it by running 'make freeze' in your project directory."
-	python3 -m pip freeze > requirements.txt
+# requirements.txt:
+# 	@echo "Generating requirements.txt"
+# 	@echo "Please ensure you have a valid requirements.txt file before running this Makefile."
+# 	@echo "You can create it by running 'make freeze' in your project directory."
+# 	python3 -m pip freeze > requirements.txt
+init: $(VENV_BIN_PATH)/python3
+	$(VENV_BIN_PATH)/python3 -m pip install -r requirements-all.txt
 
 ensure-build:
+	$(VENV_BIN_PATH)/python3 -m pip show twine || (echo "Run 'make init' first!" && exit 1)
 	$(VENV_BIN_PATH)/python3 -m pip show build || $(VENV_BIN_PATH)/python3 -m pip install build
+	$(VENV_BIN_PATH)/python3 -m pip show wheel || $(VENV_BIN_PATH)/python3 -m pip install wheel
+	$(VENV_BIN_PATH)/python3 -m pip show setuptools || $(VENV_BIN_PATH)/python3 -m pip install setuptools
+	$(VENV_BIN_PATH)/python3 -m pip show setuptools_scm || $(VENV_BIN_PATH)/python3 -m pip install setuptools_scm
 
 build: ensure-build
 	$(VENV_BIN_PATH)/python3 -m build
 
-utestpypi:
+utestpypi: ensure-build
 	$(VENV_BIN_PATH)/python3 -m twine upload --repository testpypi dist/* --verbose
 
 upypi:
