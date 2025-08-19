@@ -4,17 +4,20 @@
 VENV_PATH ?= venv
 VENV_BIN_PATH = $(VENV_PATH)/bin
 
-$(VENV_PATH)/bin/python3: requirements.txt
-	@if [ ! -f "$(VENV_PATH)/bin/python3" ]; then \
-		echo "Creating virtual environment at $(VENV_PATH)"; \
-		python3 -m venv $(VENV_PATH); \
-		$(VENV_BIN_PATH)/python3 -m pip install --upgrade pip; \
-		$(VENV_BIN_PATH)/python3 -m pip install -r requirements.txt; \
-		$(VENV_BIN_PATH)/python3 -m pip install --upgrade build; \
-		$(VENV_BIN_PATH)/python3 -m pip install --upgrade twine; \
-	else \
-		echo "Virtual environment already exists at $(VENV_PATH)"; \
-	fi
+# $(VENV_PATH)/bin/python3: requirements.txt
+# 	@if [ ! -f "$(VENV_PATH)/bin/python3" ]; then \
+# 		echo "Creating virtual environment at $(VENV_PATH)"; \
+# 		python3 -m venv $(VENV_PATH); \
+# 		$(VENV_BIN_PATH)/python3 -m pip install --upgrade pip; \
+# 		$(VENV_BIN_PATH)/python3 -m pip install -r requirements.txt; \
+# 		$(VENV_BIN_PATH)/python3 -m pip install --upgrade build; \
+# 		$(VENV_BIN_PATH)/python3 -m pip install --upgrade twine; \
+# 	else \
+# 		echo "Virtual environment already exists at $(VENV_PATH)"; \
+# 	fi
+
+$(VENV_BIN_PATH)/python3:
+	python3 -m venv $(VENV_PATH)
 
 requirements.txt:
 	@echo "Generating requirements.txt"
@@ -22,8 +25,10 @@ requirements.txt:
 	@echo "You can create it by running 'make freeze' in your project directory."
 	python3 -m pip freeze > requirements.txt
 
-build:
-	rm -rf dist
+ensure-build:
+	$(VENV_BIN_PATH)/python3 -m pip show build || $(VENV_BIN_PATH)/python3 -m pip install build
+
+build: ensure-build
 	$(VENV_BIN_PATH)/python3 -m build
 
 utestpypi:
@@ -42,7 +47,6 @@ test:
 	$(VENV_BIN_PATH)/python3 -m unittest discover -s tests
 
 install:
-	$(VENV_BIN_PATH)/python3 -m pip install --force-reinstall dist/*.whl
 	$(VENV_BIN_PATH)/python3 -m pip install --force-reinstall dist/*.whl
 
 freeze:
