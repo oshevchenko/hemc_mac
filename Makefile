@@ -28,7 +28,7 @@ irun:
 run:
 	@echo "Run from the src directory ${SRC_PATH}"
 	cd $(SRC_PATH) && \
-	$(VENV_BIN_PATH)/python3 -m hemc_mac --credentials $(MAKEFILE_PATH)/credentials.txt
+	$(VENV_BIN_PATH)/python3 -m hemc_mac --credentials credentials.txt
 
 clean:
 	rm -rf dist

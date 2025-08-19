@@ -2,40 +2,6 @@
 To flash the device with MAC address we take the unique serial number from the
 file located on SFTP server. MAC address is generated from this serial.
 
-## Run the tool
-```
-python3 ./sftp_mac.py --credentials ./credentials.txt
-```
-The configuration is taken from 'credentials.txt' file:
-The format of the 'credentials.txt' file:
-```
-# Sapling SFTP configuration file
-# Comments are allowed!
-# Empty lines are ignored.
-# Must have the following keys:
-Server: 192.168.1.102
-Name: sftp_hemc
-Password: *********
-# Optional keys
-OUI: 60:36:96
-DEVICE_TYPE: 10
-NUM_OF_MAC: 6
-PATH_LOCAL_HEMC_MAC_LIST: /tmp/HEMC_MAC.txt
-PATH_SFTP_HEMC_MAC_LIST: uploads/HEMC_MAC.txt
-PATH_SFTP_MUTEX_UNLOCKED: uploads/mutex.unlocked
-PATH_SFTP_MUTEX_LOCKED: uploads/mutex.locked
-PATH_LOCAL_MUTEX_UNLOCKED: /tmp/mutex.unlocked
-
-```
-Clean up the local and remote files
-```
-python3 ./sftp_mac.py --credentials ./credentials.txt --clean
-```
-Initialize the SFTP server by creating a mutex file and a MAC list file with a single line.
-```
-python3 ./sftp_mac.py --credentials ./credentials.txt --init
-```
-
 ## Text file on SFTP server
 Download the file from SFTP server, process it and upload it back.
 File is processed atomically by using a separate file as a mutex.
@@ -53,6 +19,46 @@ The new serial number and generated MAC address is put to the file and saved bac
 Total   Serial  MAC               DateTime
 0       0000    60:36:96:08:00:00 2025-08-05 16:25:40
 1       0001    60:36:96:08:00:01 2025-08-05 16:25:54
+```
+
+## Run the tool
+The configuration is taken from 'src/credentials.txt' file:
+The format of the 'src/credentials.txt' file:
+```
+# Sapling SFTP configuration file
+# Comments are allowed!
+# Empty lines are ignored.
+# Must have the following keys:
+# Sapling SFTP configuration file
+Server: 192.168.1.102
+Name: sftp_hemc
+Password: ********
+OUI: 60:36:96
+DEVICE_TYPE: 10
+NUM_OF_MAC: 6
+Protocol: SFTP
+Port: 22
+PATH_LOCAL_HEMC_MAC_LIST: /tmp/HEMC_MAC.txt
+PATH_SFTP_HEMC_MAC_LIST: uploads/HEMC_MAC.txt
+PATH_SFTP_MUTEX_UNLOCKED: uploads/mutex.unlocked
+PATH_SFTP_MUTEX_LOCKED: uploads/mutex.locked
+PATH_LOCAL_MUTEX_UNLOCKED: /tmp/mutex.unlocked
+```
+Run the tool:
+```
+make init run
+```
+Clean up the local and remote files
+```
+source ./venv/bin/activate
+cd src
+python3 -m hemc_mac --credentials ./credentials.txt --clean
+```
+Initialize the SFTP server by creating a mutex file and a MAC list file with a single line.
+```
+source ./venv/bin/activate
+cd src
+python3 -m hemc_mac --credentials ./credentials.txt --clean
 ```
 
 ## Configure SFTP server
