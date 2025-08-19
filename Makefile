@@ -1,47 +1,34 @@
-.PHONY: venv build utestpypi upypi clean veryclean test install freeze
+.PHONY: build utestpypi upypi clean veryclean test install freeze init irun run
 
-
-VENV_PATH ?= venv
+# Makefile for hemc_mac project
+MAKEFILE_PATH := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+SRC_PATH ?= $(MAKEFILE_PATH)/src
+VENV_PATH ?= $(MAKEFILE_PATH)/venv
 VENV_BIN_PATH = $(VENV_PATH)/bin
-
-# $(VENV_PATH)/bin/python3: requirements.txt
-# 	@if [ ! -f "$(VENV_PATH)/bin/python3" ]; then \
-# 		echo "Creating virtual environment at $(VENV_PATH)"; \
-# 		python3 -m venv $(VENV_PATH); \
-# 		$(VENV_BIN_PATH)/python3 -m pip install --upgrade pip; \
-# 		$(VENV_BIN_PATH)/python3 -m pip install -r requirements.txt; \
-# 		$(VENV_BIN_PATH)/python3 -m pip install --upgrade build; \
-# 		$(VENV_BIN_PATH)/python3 -m pip install --upgrade twine; \
-# 	else \
-# 		echo "Virtual environment already exists at $(VENV_PATH)"; \
-# 	fi
 
 $(VENV_BIN_PATH)/python3:
 	python3 -m venv $(VENV_PATH)
 
-# requirements.txt:
-# 	@echo "Generating requirements.txt"
-# 	@echo "Please ensure you have a valid requirements.txt file before running this Makefile."
-# 	@echo "You can create it by running 'make freeze' in your project directory."
-# 	python3 -m pip freeze > requirements.txt
-init: $(VENV_BIN_PATH)/python3
+init:
 	$(VENV_BIN_PATH)/python3 -m pip install -r requirements-all.txt
 
-ensure-build:
-	$(VENV_BIN_PATH)/python3 -m pip show twine || (echo "Run 'make init' first!" && exit 1)
-	$(VENV_BIN_PATH)/python3 -m pip show build || $(VENV_BIN_PATH)/python3 -m pip install build
-	$(VENV_BIN_PATH)/python3 -m pip show wheel || $(VENV_BIN_PATH)/python3 -m pip install wheel
-	$(VENV_BIN_PATH)/python3 -m pip show setuptools || $(VENV_BIN_PATH)/python3 -m pip install setuptools
-	$(VENV_BIN_PATH)/python3 -m pip show setuptools_scm || $(VENV_BIN_PATH)/python3 -m pip install setuptools_scm
-
-build: ensure-build
+build:
 	$(VENV_BIN_PATH)/python3 -m build
 
-utestpypi: ensure-build
+utestpypi:
 	$(VENV_BIN_PATH)/python3 -m twine upload --repository testpypi dist/* --verbose
 
 upypi:
 	$(VENV_BIN_PATH)/python3 -m twine upload dist/*
+
+irun:
+	@echo "To install hemc_mac run 'make build install'"
+	$(VENV_BIN_PATH)/python3 -m hemc_mac
+
+run:
+	@echo "Run from the src directory ${SRC_PATH}"
+	cd $(SRC_PATH) && \
+	$(VENV_BIN_PATH)/python3 -m hemc_mac --credentials $(MAKEFILE_PATH)/credentials.txt
 
 clean:
 	rm -rf dist
@@ -61,4 +48,4 @@ freeze:
 	$(VENV_BIN_PATH)/python3 -m pip freeze --user > requirements-user.txt
 	$(VENV_BIN_PATH)/python3 -m pip freeze --all > requirements-all.txt
 
-test install utestpypi upypi build freeze veryclean: $(VENV_PATH)/bin/python3
+build utestpypi upypi test install freeze init irun run: $(VENV_PATH)/bin/python3

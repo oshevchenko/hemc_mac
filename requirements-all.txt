@@ -6,7 +6,6 @@ cffi==1.17.1
 charset-normalizer==3.4.3
 cryptography==45.0.6
 docutils==0.20.1
-hemc-mac==0.1.dev3+gaa77ad21b.d20250819
 id==1.5.0
 idna==3.10
 importlib-metadata==8.5.0
